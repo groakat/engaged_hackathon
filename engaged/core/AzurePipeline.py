@@ -97,7 +97,7 @@ class AzurePipeline(object):
             
         filename = os.path.join(self.df_cache_dir, 
                             hashlib.sha256('-'.join(self.func_history + [func.__name__]) 
-                                            + '-' + str(args)).hexdigest()
+                                            + '-' + str(args) + str(self.meta)).hexdigest()
                             + '.pkl')   
     
         if not os.path.exists(self.df_cache_dir):
@@ -154,14 +154,14 @@ class AzurePipeline(object):
         """ dump DataFrame out to cache """
         filename = self.get_df_cache_file(func)
         self.df.to_pickle(filename)
-
-
+    
+    
     def load_from_cache(self, func):
         """ load previous computation from cache """
         filename = self.get_df_cache_file(func)
         self.df = pd.read_pickle(filename)
-
-
+        
+        
     def cache_exists(self, func):
         filename = self.get_df_cache_file(func)
         return os.path.exists(filename)
@@ -177,12 +177,52 @@ class AzurePipeline(object):
         # side effects are taking place
         data_unchanged = self.is_data_unchanged(func)
         func_unchanged = self.is_func_unchanged(func)
-
+        
         if data_unchanged and func_unchanged and self.cache_exists(func):
             self.load_from_cache(func)
         else:
             self.df, self.meta = func(self.df, self.meta,)
             self.cache(func)
-
+            
         self.func_history += [func.__name__]
         
+
+if __name__ == "__main__":
+    # define some functions
+    def read_wav(df, meta):
+        args = meta['read_wav']
+        
+        print "read_wav"
+        import scipy.io.wavfile
+        sound = scipy.io.wavfile.read(args['in_filename'])
+        df = pd.DataFrame(sound[1])
+        return df, meta
+    
+    def test2(df, meta):
+    #     args = meta['test2']
+        
+        print "test2"
+        df /= 3
+        return df, meta
+        
+    def save(df, meta):
+        args = meta['save']
+        
+        print "save"
+        
+        df.to_csv(args['out_filename'])
+        
+        return df, meta
+
+    # define meta (args for functions)
+
+    meta = {'read_wav': {'in_filename': '../../../data/night.wav'},
+        'save': {'out_filename': 'night.csv'}}
+
+
+    # open azure pipeline and run pipeline
+    ap = AzurePipeline(meta)
+
+    ap.apply(read_wav)
+    ap.apply(test2)
+    ap.apply(save)

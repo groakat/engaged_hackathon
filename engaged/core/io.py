@@ -1,7 +1,3 @@
-def merge_two_dicts(x, y):
-    z = x.copy()
-    z.update(y)
-    return z
 
 def read_wav(df, meta):
     args = meta['read_wav']
@@ -48,8 +44,90 @@ def save(df, meta):
         z.update(y)
         return z
 
-    new_meta = {'out_filename': out_filename}
+    new_meta = {'save_out' : {'out_filename': out_filename}}
     d = merge_two_dicts(meta.to_dict(), new_meta)
     meta = pd.DataFrame(d)
 
     return df, meta
+
+def logger(df, meta):
+    args = meta['logger']
+    folder = args['out_folder']
+    filename = args['filename']
+    import ast
+    keys = ast.literal_eval(args['keys'])
+
+    ##########
+
+    import hashlib
+    import os
+    import pandas as pd
+
+    def get_meta_values(meta, keys):
+        if len(keys) > 0:
+            meta, tmp = get_meta_values(meta[keys[0]], keys[1:])
+
+        return meta, '-'.join(keys)
+
+
+    path = os.path.join(folder, filename)
+    out_data = {}
+
+    for k in keys:
+        tmp_meta, key_string = get_meta_values(meta, k)
+
+        out_data[key_string] = tmp_meta
+
+    out_df = pd.DataFrame(out_data, index=[0])
+
+    if os.path.exists(path):
+        log_df = pd.read_csv(path, index_col=0)
+
+        out_df = pd.concat((out_df, log_df))
+
+
+    out_df.to_csv(filename)
+
+    ############
+
+    return df, meta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
