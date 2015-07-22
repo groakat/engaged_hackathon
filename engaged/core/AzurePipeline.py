@@ -68,7 +68,7 @@ class AzurePipeline(object):
             args = ''
             
         filename = os.path.join(self.df_hash_dir, 
-                            hashlib.sha256('-'.join(self.func_history + [func.__name__]) 
+                            hashlib.sha256('-'.join([str(x) for x in self.func_history] + [func.__name__]) 
                                             + '-' + str(args)).hexdigest()
                             + '.sha256')
         
@@ -96,7 +96,7 @@ class AzurePipeline(object):
             args = ''
             
         filename = os.path.join(self.df_cache_dir, 
-                            hashlib.sha256('-'.join(self.func_history + [func.__name__]) 
+                            hashlib.sha256('-'.join([str(x) for x in self.func_history] + [func.__name__]) 
                                             + '-' + str(args) + str(self.meta)).hexdigest()
                             + '.pkl')   
     
@@ -184,7 +184,7 @@ class AzurePipeline(object):
             self.df, self.meta = func(self.df, self.meta,)
             self.cache(func)
             
-        self.func_history += [func.__name__]
+        self.func_history += [func]
         
 
 if __name__ == "__main__":
