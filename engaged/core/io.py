@@ -93,6 +93,63 @@ def logger(df, meta):
     return df, meta
 
 
+def import_local_labels(df, meta):
+    """ read label of multiple (local) annotations within the file
+    """
+    args = meta['import_global_labels']
+    csv_filename = args['csv_filename']
+    wav_filename = args['wav_filename']
+    expected_keys = ['Label', 'Spec_NStep', 'Spec_NWin', 
+                     'Spec_x1', 'Spec_y1', 'Spec_x2', 'Spec_y2',
+                     'LabelStartTime_Seconds', 'LabelEndTime_Seconds',
+                     'MinimumFreq_Hz', 'MaximumFreq_Hz']    
+    
+    
+    import pandas as pd
+    
+    csv_df = pd.DataFrame.from_csv(csv_filename).dropna()
+    
+    labels = []
+    for i, line in csv_df.iterrows():
+        d = {}
+        for k in expected_keys:
+            try:
+                d[k] = line[k]
+            except KeyError:
+                d[k] = None
+
+        labels += [d]
+        
+    labelDf = pd.DataFrame({'labels': labels})
+    meta = pd.concat((meta, labelDf))
+    
+    return df, meta
+    
+    
+def import_global_label(df, meta):
+    """ read global (only) label of single file
+
+    """
+    args = meta['import_local_label']
+    csv_filename = args['csv_filename']
+    wav_filename = args['wav_filename']
+    
+    
+    import pandas as pd
+        
+    csv_df = pd.read_csv(csv_filename, 
+                    names=['start_time', 'label', 'None'], 
+                    header=None, index_col=None)
+    
+       
+    
+    
+    labelDf = pd.DataFrame({'label': csv_df.ix[wav_filename]['label']},
+                           index=[0])
+    meta = pd.concat((meta, labelDf))
+    
+    return df, meta
+
 
 
 
