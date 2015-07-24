@@ -8,6 +8,10 @@ Check out quick introduction on https://github.com/groakat/engaged_hackathon/blo
 
 https://github.com/groakat/engaged_hackathon/blob/master/notebooks/pipeline_examples/Example_Pipeline_1.ipynb
 
+## Syncroniziation with Alisons Github repository:
+
+    git pull https://github.com/ali-fairbrass/engaged_hackathon.git master
+
 ## Data
 
 Please share data in the separate data repository: https://github.com/groakat/engaged_hackathon_data
