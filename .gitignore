@@ -77,3 +77,5 @@ target/
 *.ipynb_checkpoints*
 
 *.xlsx
+
+*.azkey
