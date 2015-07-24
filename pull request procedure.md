@@ -8,4 +8,3 @@ Person who has new code to be added to the main repoitory has to
   1. if you see "There isn’t anything to compare.", click on "switching the base"
 4. You should see a summary of all your changes.
 5. Click in the large green button "Create pull request"
-6. 
